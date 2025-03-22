@@ -46,7 +46,7 @@ export const serializeGameSnapshot = (
 					return [
 						key,
 						{
-							...playerSnap,
+							...pick(playerSnap, ["value", "status"]),
 							context: {
 								...pick(playerSnap.context, [
 									"id",

@@ -1,16 +1,20 @@
 import * as Party from "partyserver";
-import { createActor, type AnyActorRef } from "xstate";
+import { createActor, type AnyActorRef, type AnyMachineSnapshot } from "xstate";
 import murmurHash2 from "../server/lib/murmur-hash2";
 import { nanoid } from "nanoid";
 import { gameMachine } from "../server/game.machine";
 import { serializeGameSnapshot } from "../server/game.machine.serialize";
 import type { Env } from "./env.type";
+import { compare } from "fast-json-patch";
 
 const withDebug = false;
 
 export default class MachinePartyServer extends Party.Server {
 	roomId = nanoid();
-	lastUpdateMap = new WeakMap<Party.Connection, string>();
+	lastUpdateMap = new WeakMap<
+		Party.Connection,
+		{ snapshot: Record<string, unknown>; hash: string }
+	>();
 
 	actor = createActor(gameMachine, {
 		input: {
@@ -52,14 +56,29 @@ export default class MachinePartyServer extends Party.Server {
 				for (const ws of this.getConnections()) {
 					const serialized = serializeGameSnapshot(snapshot, ws.id);
 					const hash = murmurHash2(JSON.stringify(serialized));
+					const previousUpdate = this.lastUpdateMap.get(ws);
 
-					if (this.lastUpdateMap.get(ws) === hash) continue;
-					this.lastUpdateMap.set(ws, hash);
+					if (previousUpdate?.hash === hash) continue;
+
+					this.lastUpdateMap.set(ws, { snapshot: serialized, hash });
+
+					if (!previousUpdate) {
+						ws.send(
+							JSON.stringify({
+								type: "party.snapshot.update",
+								snapshot: serialized,
+							}),
+						);
+						continue;
+					}
+
+					const operations = compare(previousUpdate.snapshot, serialized);
+					if (operations.length === 0) continue;
 
 					ws.send(
 						JSON.stringify({
-							type: "party.snapshot.update",
-							snapshot: serialized,
+							type: "party.snapshot.patch",
+							operations,
 						}),
 					);
 				}

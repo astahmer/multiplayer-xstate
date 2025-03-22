@@ -14,7 +14,12 @@ import {
 	type StateFrom,
 	type StateValueFrom,
 } from "xstate";
+import { applyPatch, type Operation } from "fast-json-patch";
 import { type ActorParty, createActorParty } from "./create-actor-party";
+import { produce } from "immer";
+import { enableMapSet } from "immer";
+
+enableMapSet();
 
 export const createArctorPartyHooks = <TLogic extends AnyStateMachine>(
 	partySocket: PartySocket,
@@ -50,38 +55,75 @@ export const createArctorPartyHooks = <TLogic extends AnyStateMachine>(
 
 		// Get initial snapshot on connection open
 		useEffect(() => {
-			partySocket.addEventListener("open", (_event) => {
+			const handler = () => {
 				partySocket.send(JSON.stringify({ type: "party.snapshot.get" }));
-			});
+			};
+			partySocket.addEventListener("open", handler);
+
+			return () => {
+				partySocket.removeEventListener("open", handler);
+			};
 		}, []);
 
 		const isFirstActiveSnapshot = useRef(true);
 		// Update snapshot on each update
 		useEffect(() => {
-			partySocket.addEventListener("message", (event) => {
+			const handler = (event: MessageEvent) => {
 				const data = event.data;
 				if (!data) return;
 
-				const decoded = JSON.parse(event.data) as {
-					type: string;
-					snapshot: StateFrom<TLogic>;
-				};
-				if (decoded.type !== "party.snapshot.update") return;
+				const decoded = JSON.parse(event.data) as
+					| {
+							type: "party.snapshot.update";
+							snapshot: StateFrom<TLogic>;
+					  }
+					| {
+							type: "party.snapshot.patch";
+							operations: Operation[];
+					  };
 
-				const snapshot = options?.reviver
-					? options.reviver(decoded.snapshot)
-					: decoded.snapshot;
-				if (snapshot.tags) {
-					snapshot.tags = new Set(snapshot.tags);
+				// Full state update
+				if (decoded.type === "party.snapshot.update") {
+					const update = options?.reviver
+						? options.reviver(decoded.snapshot)
+						: decoded.snapshot;
+					if (update.tags) {
+						update.tags = new Set(update.tags);
+					}
+
+					setSnapshot(update);
+
+					if (isFirstActiveSnapshot.current && update.status === "active") {
+						isFirstActiveSnapshot.current = false;
+						props?.onConnect?.(createActorParty(update, partySocket));
+					}
 				}
 
-				setSnapshot(snapshot);
+				// Small patch
+				if (decoded.type === "party.snapshot.patch") {
+					setSnapshot((currentSnapshot) => {
+						const patched = produce(currentSnapshot, (draft) => {
+							applyPatch(draft, decoded.operations);
+						});
 
-				if (isFirstActiveSnapshot.current && snapshot.status === "active") {
-					isFirstActiveSnapshot.current = false;
-					props?.onConnect?.(createActorParty(snapshot, partySocket));
+						const update = options?.reviver
+							? options.reviver(patched)
+							: patched;
+						if (update.tags) {
+							update.tags = new Set(update.tags);
+						}
+
+						return update;
+					});
+					return;
 				}
-			});
+			};
+
+			partySocket.addEventListener("message", handler);
+
+			return () => {
+				partySocket.removeEventListener("message", handler);
+			};
 		}, []);
 
 		return actor;
