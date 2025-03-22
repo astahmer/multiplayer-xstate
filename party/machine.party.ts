@@ -6,6 +6,7 @@ import { gameMachine } from "../server/game.machine";
 import { serializeGameSnapshot } from "../server/game.machine.serialize";
 import type { Env } from "./env.type";
 import { compare } from "fast-json-patch";
+import { decode, encode } from "../server/lib/encode-decode";
 
 const withDebug = false;
 
@@ -64,7 +65,7 @@ export default class MachinePartyServer extends Party.Server {
 
 					if (!previousUpdate) {
 						ws.send(
-							JSON.stringify({
+							encode({
 								type: "party.snapshot.update",
 								snapshot: serialized,
 							}),
@@ -76,7 +77,7 @@ export default class MachinePartyServer extends Party.Server {
 					if (operations.length === 0) continue;
 
 					ws.send(
-						JSON.stringify({
+						encode({
 							type: "party.snapshot.patch",
 							operations,
 						}),
@@ -105,18 +106,16 @@ export default class MachinePartyServer extends Party.Server {
 		sender: Party.Connection,
 		message: Party.WSMessage,
 	): void | Promise<void> {
-		if (typeof message !== "string") {
-			console.log("message is not a string");
+		const decoded = decode<Record<string, unknown>>(message);
+		if (!decoded) {
+			console.warn("message is not decodable", message);
 			return;
 		}
 
-		console.log(`connection ${sender.id} sent message: ${message}`);
-		if (message[0] !== "{") {
-			console.warn("message is not a JSON object", message);
-			return;
-		}
+		console.log(
+			`connection ${sender.id} sent message: ${JSON.stringify(decoded)}`,
+		);
 
-		const decoded = decode(message) as Record<string, unknown>;
 		const eventType = decoded.type;
 		const isEvent = eventType && typeof eventType === "string";
 		if (!isEvent) {
@@ -132,9 +131,7 @@ export default class MachinePartyServer extends Party.Server {
 							this.actor.getSnapshot(),
 							sender.id,
 						);
-						sender.send(
-							JSON.stringify({ type: "party.snapshot.update", snapshot }),
-						);
+						sender.send(encode({ type: "party.snapshot.update", snapshot }));
 					},
 				},
 				"party.sendTo": {
@@ -188,14 +185,3 @@ export default class MachinePartyServer extends Party.Server {
 		this.onCloseOrError(connection, "error", error);
 	}
 }
-
-const decoder = new TextDecoder();
-const decode = <Message = any>(message: ArrayBuffer | string) => {
-	try {
-		const data =
-			message instanceof ArrayBuffer ? decoder.decode(message) : message;
-		return JSON.parse(data) as Message;
-	} catch (err) {
-		return;
-	}
-};

@@ -13,6 +13,7 @@ const partySocket = new PartySocket({
 	party: "machine",
 	startClosed: true,
 });
+partySocket.binaryType = "arraybuffer";
 
 export const GameClient = createArctorPartyHooks<GameMachineClientSide>(
 	partySocket,

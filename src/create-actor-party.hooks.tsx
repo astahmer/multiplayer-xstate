@@ -18,6 +18,7 @@ import { applyPatch, type Operation } from "fast-json-patch";
 import { type ActorParty, createActorParty } from "./create-actor-party";
 import { produce } from "immer";
 import { enableMapSet } from "immer";
+import { decode } from "../server/lib/encode-decode";
 
 enableMapSet();
 
@@ -72,7 +73,7 @@ export const createArctorPartyHooks = <TLogic extends AnyStateMachine>(
 				const data = event.data;
 				if (!data) return;
 
-				const decoded = JSON.parse(event.data) as
+				const decoded = decode<
 					| {
 							type: "party.snapshot.update";
 							snapshot: StateFrom<TLogic>;
@@ -80,7 +81,12 @@ export const createArctorPartyHooks = <TLogic extends AnyStateMachine>(
 					| {
 							type: "party.snapshot.patch";
 							operations: Operation[];
-					  };
+					  }
+				>(event.data);
+				if (!decoded) {
+					console.warn("message is not decodable", event.data);
+					return;
+				}
 
 				// Full state update
 				if (decoded.type === "party.snapshot.update") {
