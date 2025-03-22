@@ -1,0 +1,25 @@
+{
+	"compilerOptions": {
+		"target": "es2020" /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */,
+		"jsx": "react-jsx" /* Specify what JSX code is generated. */,
+		"module": "ES2020" /* Specify what module code is generated. */,
+		"moduleResolution": "Bundler" /* Specify how TypeScript looks up a file from a given module specifier. */,
+		"resolveJsonModule": true /* Enable importing .json files. */,
+		"noEmit": true /* Disable emitting files from a compilation. */,
+		"verbatimModuleSyntax": true /* Do not transform or elide any imports or exports not marked as type-only, ensuring they are written in the output file's format based on the 'module' setting. */,
+		"esModuleInterop": true /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */,
+		"forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
+		"strict": true /* Enable all strict type-checking options. */,
+		"skipLibCheck": true, /* Skip type checking all .d.ts files. */
+		"noUncheckedIndexedAccess": true,
+		"types": [
+			"vite/client",
+			"@cloudflare/workers-types/2023-07-01"
+		],
+	},
+	"include": [
+		"src",
+		"party",
+		"server",
+	]
+}
