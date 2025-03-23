@@ -26,6 +26,7 @@ export const SandboxPage = () => {
 		<SandboxLayout>
 			<Stack h="100%">
 				<Counter />
+				<a href="/api/todos?name=abc">Go to TodoList sandbox</a>
 				<a href="/payment">Go to Payment sandbox</a>
 			</Stack>
 		</SandboxLayout>
