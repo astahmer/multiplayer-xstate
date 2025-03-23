@@ -7,16 +7,22 @@ import {
 	Stack,
 } from "@chakra-ui/react";
 import { EnvConfig } from "../env.config";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 export const SandboxPage = () => {
 	return (
+		<SandboxLayout>
+			<Stack>
+				<Counter />
+			</Stack>
+		</SandboxLayout>
+	);
+};
+
+export const SandboxLayout = (props: { children: ReactNode }) => {
+	return (
 		<Container maxW="container.xl" py={8} width="100%" height="100%">
-			<Center h="100%">
-				<Stack>
-					<Counter />
-				</Stack>
-			</Center>
+			<Center h="100%">{props.children}</Center>
 		</Container>
 	);
 };

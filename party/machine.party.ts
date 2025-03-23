@@ -4,7 +4,7 @@ import murmurHash2 from "../server/lib/murmur-hash2";
 import { nanoid } from "nanoid";
 import { gameMachine } from "../server/game.machine";
 import { serializeGameSnapshot } from "../server/game.machine.serialize";
-import type { Env } from "./env.type";
+import type { EnvBindings } from "./env.type";
 import { compare } from "fast-json-patch";
 import { decode, encode } from "../server/lib/encode-decode";
 
@@ -42,7 +42,7 @@ export default class MachinePartyServer extends Party.Server {
 			: undefined,
 	});
 
-	constructor(ctx: DurableObjectState, env: Env) {
+	constructor(ctx: DurableObjectState, env: EnvBindings) {
 		super(ctx, env);
 		console.log("init room:", this.roomId);
 		this.actor.start();

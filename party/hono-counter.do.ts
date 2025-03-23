@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { EnvBindings } from "./env.type";
 
 export class Counter {
 	static basePath = "/api/counter";
@@ -8,7 +9,7 @@ export class Counter {
 	value = 0;
 	initialPromise: Promise<void>;
 
-	constructor(state: DurableObjectState) {
+	constructor(state: DurableObjectState, _env: EnvBindings) {
 		this.state = state;
 		this.initialPromise = this.state.blockConcurrencyWhile(async () => {
 			const stored = await this.state.storage?.get<number>("value");

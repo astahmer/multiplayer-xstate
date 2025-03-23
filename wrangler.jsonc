@@ -25,6 +25,10 @@
         "name": "Counter",
         "class_name": "Counter"
       },
+      {
+        "name": "TodoList",
+        "class_name": "TodoList"
+      },
     ]
   },
   "migrations": [
@@ -32,7 +36,8 @@
       "tag": "v1",
       "new_classes": [
         "Machine",
-        "Counter"
+        "Counter",
+        "TodoList"
       ]
     }
   ],
