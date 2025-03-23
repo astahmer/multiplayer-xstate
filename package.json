@@ -1,5 +1,5 @@
 {
-	"name": "multiplayer-xstate",
+	"name": "multiplayer-durable-state-machine",
 	"type": "module",
 	"scripts": {
 		"typecheck": "tsc --noEmit",
