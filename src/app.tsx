@@ -5,12 +5,14 @@ import { Router } from "./router";
 import { Provider } from "./components/ui/provider";
 import { LinkButton } from "./components/ui/link-button";
 import { SandboxPage } from "./pages/sandbox.page";
+import { PaymentPage } from "./pages/payment.page";
 
 export function App() {
-	const route = Router.useRoute(["Home", "Room", "Sandbox"]);
+	const route = Router.useRoute(["Home", "Room", "Sandbox", "Payment"]);
 	const routes = {
 		Home: () => <HomePage />,
 		Sandbox: () => <SandboxPage />,
+		Payment: () => <PaymentPage />,
 		Room: ({ roomId }: { roomId: string }) => <RoomPage roomId={roomId} />,
 		NotFound: () => (
 			<Center h="100vh" fontSize="8xl" fontWeight="bold">

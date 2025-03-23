@@ -1,4 +1,5 @@
 import {
+	Box,
 	Button,
 	Center,
 	Container,
@@ -6,24 +7,28 @@ import {
 	Input,
 	Stack,
 } from "@chakra-ui/react";
+
+import { type ReactNode, useEffect, useState } from "react";
 import { EnvConfig } from "../env.config";
-import { useEffect, useState, type ReactNode } from "react";
+
+export const SandboxLayout = (props: { children: ReactNode }) => {
+	return (
+		<Box width="100%" height="100%" overflow="auto">
+			<Container maxW="container.xl" py={8} width="100%" height="100%">
+				<Center h="100%">{props.children}</Center>
+			</Container>
+		</Box>
+	);
+};
 
 export const SandboxPage = () => {
 	return (
 		<SandboxLayout>
-			<Stack>
+			<Stack h="100%">
 				<Counter />
+				<a href="/payment">Go to Payment sandbox</a>
 			</Stack>
 		</SandboxLayout>
-	);
-};
-
-export const SandboxLayout = (props: { children: ReactNode }) => {
-	return (
-		<Container maxW="container.xl" py={8} width="100%" height="100%">
-			<Center h="100%">{props.children}</Center>
-		</Container>
 	);
 };
 
@@ -41,16 +46,21 @@ const Counter = () => {
 	}, []);
 
 	return (
-		<Stack gap="4" p="8" boxShadow="md">
-			<span>Durable Object name:</span>
-			<Input
-				name="do-name"
-				value={name}
-				onChange={(e) => {
-					setName(e.target.value);
-					getAndSetCurrent(e.target.value);
-				}}
-			/>
+		<Stack gap="4" px="8" py="6" boxShadow="md" maxWidth="300px" mx="auto">
+			<Box fontSize="xl" fontWeight="bold">
+				Hono Counter
+			</Box>
+			<Stack>
+				<span>Durable Object name:</span>
+				<Input
+					name="do-name"
+					value={name}
+					onChange={(e) => {
+						setName(e.target.value);
+						getAndSetCurrent(e.target.value);
+					}}
+				/>
+			</Stack>
 			<HStack>
 				<span>Counter value:</span>
 				<span>{count ?? "Unknown"}</span>

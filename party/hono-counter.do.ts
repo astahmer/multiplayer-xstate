@@ -7,13 +7,14 @@ export class Counter {
 	state: DurableObjectState;
 	app = new Hono().basePath(Counter.basePath);
 	value = 0;
-	initialPromise: Promise<void>;
+	initialPromise: Promise<void> | null;
 
 	constructor(state: DurableObjectState, _env: EnvBindings) {
 		this.state = state;
 		this.initialPromise = this.state.blockConcurrencyWhile(async () => {
 			const stored = await this.state.storage?.get<number>("value");
 			this.value = stored || 0;
+			this.initialPromise = null;
 		});
 
 		this.app.get("/increment", async (c) => {
@@ -35,7 +36,7 @@ export class Counter {
 
 	async fetch(request: Request) {
 		// ensures the in memory state is always up to date
-		await this.initialPromise;
+		this.initialPromise && (await this.initialPromise);
 		return this.app.fetch(request);
 	}
 }

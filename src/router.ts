@@ -4,4 +4,5 @@ export const Router = createRouter({
 	Home: "/",
 	Room: "/rooms/:roomId",
 	Sandbox: "/sandbox",
+	Payment: "/payment",
 });
