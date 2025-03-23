@@ -21,13 +21,18 @@
         "name": "Machine",
         "class_name": "Machine"
       },
+      {
+        "name": "Counter",
+        "class_name": "Counter"
+      },
     ]
   },
   "migrations": [
     {
       "tag": "v1",
       "new_classes": [
-        "Machine"
+        "Machine",
+        "Counter"
       ]
     }
   ],

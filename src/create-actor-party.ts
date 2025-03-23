@@ -28,7 +28,7 @@ export const createActorParty = <
 	},
 	sendTo: (selectorOrChild, event) => {
 		if (snapshot.status !== "active") {
-			console.warn("sendTo: snapshot not active");
+			console.warn("sendTo: snapshot not active", snapshot.status);
 			return;
 		}
 
@@ -37,7 +37,7 @@ export const createActorParty = <
 				? selectorOrChild(snapshot)?.id
 				: selectorOrChild.id;
 		if (!actorId) {
-			console.warn("sendTo: no actorId found");
+			console.warn("sendTo: no actorId found", selectorOrChild);
 			return;
 		}
 

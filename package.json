@@ -15,6 +15,7 @@
 		"@swan-io/chicane": "^2.1.0",
 		"@xstate/react": "^5.0.2",
 		"fast-json-patch": "^3.1.1",
+		"hono": "^4.7.5",
 		"immer": "^10.1.1",
 		"nanoid": "^5.1.2",
 		"next-themes": "^0.4.4",

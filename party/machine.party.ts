@@ -1,5 +1,5 @@
 import * as Party from "partyserver";
-import { createActor, type AnyActorRef, type AnyMachineSnapshot } from "xstate";
+import { createActor, type AnyActorRef } from "xstate";
 import murmurHash2 from "../server/lib/murmur-hash2";
 import { nanoid } from "nanoid";
 import { gameMachine } from "../server/game.machine";
@@ -157,6 +157,11 @@ export default class MachinePartyServer extends Party.Server {
 		}
 
 		this.actor.send({ ...decoded, _userId: sender.id } as never);
+	}
+
+	onRequest(request: Request): Response | Promise<Response> {
+		console.log("onRequest", request.url);
+		return new Response("Not Implemented", { status: 501 });
 	}
 
 	// Whenever a connection closes (or errors),

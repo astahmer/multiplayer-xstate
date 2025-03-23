@@ -1,4 +1,4 @@
-import type { WSMessage } from "partyserver";
+type WSMessage = ArrayBuffer | ArrayBufferView | string;
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
