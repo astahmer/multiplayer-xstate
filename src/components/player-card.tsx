@@ -10,13 +10,7 @@ import {
 } from "@chakra-ui/react";
 import type { ReactNode } from "react";
 import { GiPerspectiveDiceSixFacesTwo } from "react-icons/gi";
-import {
-	LuCheck,
-	LuPencilLine,
-	LuThumbsUp,
-	LuWifiOff,
-	LuX,
-} from "react-icons/lu";
+import { LuCheck, LuPencilLine, LuX } from "react-icons/lu";
 import { type Player, getPlayerId } from "../../server/game.machine.context";
 import { GameClient } from "../game/game.client";
 import { generateRandomName } from "../pages/username.section";
@@ -151,130 +145,29 @@ const PlayerEditableName = (props: { player: Player }) => {
 const PlayerCardActions = (props: { player: Player; children?: ReactNode }) => {
 	const { player, children } = props;
 	const actor = GameClient.useContext();
-	const hasVotedForResume = actor.context.currentVotes.some(
-		(vote) => vote.type === "resume" && vote.fromPlayerId === player.id,
-	);
 
 	return (
 		<HStack marginLeft="auto">
 			{children}
-			<GameClient.Matches
-				value={["idle", "starting", { started: "preparing" }]}
-			>
-				{player.state === "idle" ? (
-					<Button
-						onClick={() => actor.send({ type: "Ready" })}
-						variant="subtle"
-						colorPalette="green"
-					>
-						Ready ?
-					</Button>
-				) : player.state === "ready" ? (
-					<Button
-						onClick={() => {
-							actor.send({ type: "CancelReady" });
-						}}
-						variant="subtle"
-						colorPalette="red"
-					>
-						Wait I'm not ready
-					</Button>
-				) : null}
-			</GameClient.Matches>
-
-			<GameClient.Matches value={{ started: { game: "paused" } }}>
+			{player.state === "idle" ? (
 				<Button
-					onClick={() => actor.send({ type: "VoteResume" })}
-					variant="surface"
-					colorPalette="blue"
-					disabled={hasVotedForResume}
+					onClick={() => actor.send({ type: "Ready" })}
+					variant="subtle"
+					colorPalette="green"
 				>
-					Vote for resuming
+					Ready ?
 				</Button>
-				<ResumeVoteList />
-			</GameClient.Matches>
+			) : player.state === "ready" ? (
+				<Button
+					onClick={() => {
+						actor.send({ type: "CancelReady" });
+					}}
+					variant="subtle"
+					colorPalette="red"
+				>
+					Wait I'm not ready
+				</Button>
+			) : null}
 		</HStack>
-	);
-};
-
-const ResumeVoteList = () => {
-	const actor = GameClient.useContext();
-	const context = actor.context;
-
-	const playerList = actor.context.actorList.map(
-		(ref) => ref.getSnapshot().context,
-	);
-	const currentPlayer = playerList.find(
-		(player) => player.id === actor._userId,
-	);
-	if (!currentPlayer) return null;
-
-	const currentResumeVotes = context.currentVotes.filter(
-		(vote) => vote.type === "resume",
-	);
-	if (currentResumeVotes.length === 0) return null;
-
-	const connectedPlayers = playerList.filter((player) => player.isConnected);
-
-	return (
-		<Box
-			position="fixed"
-			bottom="10"
-			right="20%"
-			marginX="auto"
-			zIndex="1"
-			display="flex"
-		>
-			<Stack
-				gap="4"
-				marginX="auto"
-				p="4"
-				borderRadius="md"
-				bg="gray.900"
-				justifyContent="center"
-				alignItems="center"
-				colorPalette={currentResumeVotes.length === 0 ? "gray" : "green"}
-				color="white"
-				fontSize="md"
-				fontWeight="bold"
-			>
-				<Box fontSize="sm">
-					Resume game ({currentResumeVotes.length}/{connectedPlayers.length})
-				</Box>
-				<HStack>
-					{playerList.map((player) => {
-						const hasVotedForResumeping = currentResumeVotes.some(
-							(vote) => vote.fromPlayerId === player.id,
-						);
-
-						const isSelf = player.id === currentPlayer.id;
-
-						return (
-							<Tooltip content={player.name} key={player.id}>
-								<div>
-									<IconButton
-										as="div"
-										variant={
-											hasVotedForResumeping && isSelf ? "solid" : "surface"
-										}
-										size="md"
-										colorPalette={hasVotedForResumeping ? "green" : "gray"}
-										pointerEvents="none"
-										aria-readonly
-										px="2"
-									>
-										{hasVotedForResumeping ? (
-											<LuThumbsUp />
-										) : !player.isConnected ? (
-											<LuWifiOff />
-										) : null}
-									</IconButton>
-								</div>
-							</Tooltip>
-						);
-					})}
-				</HStack>
-			</Stack>
-		</Box>
 	);
 };

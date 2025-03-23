@@ -36,17 +36,13 @@ const GameStatus = () => {
 			left="50%"
 			transform="translate3d(-50%, -25%, 0)"
 			colorPalette={
-				actor.matches({ started: { game: "playing" } })
-					? "purple"
-					: actor.matches("starting") || actor.matches({ started: "preparing" })
-						? "blue"
-						: actor.matches("idle") ||
-								actor.matches({ started: { preparing: "paused" } }) ||
-								actor.matches({ started: { game: "paused" } })
-							? "yellow"
-							: actor.matches("done")
-								? "green"
-								: "gray"
+				actor.matches("playing")
+					? "blue"
+					: actor.matches("idle")
+						? "yellow"
+						: actor.matches("done")
+							? "green"
+							: "gray"
 			}
 			fontSize="xl"
 			p={2}
@@ -56,23 +52,7 @@ const GameStatus = () => {
 				{`${actor.context.actorList.filter((actor) => actor.getSnapshot().context.state !== "ready").length}/${actor.context.actorList.length}`}{" "}
 				players
 			</GameClient.Matches>
-			<GameClient.Matches value="starting">Starting...</GameClient.Matches>
-			<GameClient.Matches value={{ started: { preparing: "waiting" } }}>
-				{actor.context.timers.preparing
-					? `Starting in ${actor.context.timers.preparing / 1000}s`
-					: "Game is about to start..."}
-			</GameClient.Matches>
-			<GameClient.Matches value={{ started: { preparing: "paused" } }}>
-				Waiting for{" "}
-				{`${actor.context.actorList.filter((actor) => actor.getSnapshot().context.state !== "ready").length}/${actor.context.actorList.length}`}{" "}
-				players
-			</GameClient.Matches>
-			<GameClient.Matches value={{ started: { game: "playing" } }}>
-				Playing
-			</GameClient.Matches>
-			<GameClient.Matches value={{ started: { game: "paused" } }}>
-				Paused
-			</GameClient.Matches>
+			<GameClient.Matches value="playing">Playing</GameClient.Matches>
 			<GameClient.Matches value="done">Game over!</GameClient.Matches>
 		</Badge>
 	);

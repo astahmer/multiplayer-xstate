@@ -12,10 +12,7 @@ import { serializeSnapshot } from "./lib/serialize-snapshot";
 
 type GameMachineType = typeof gameMachine;
 export interface GamePublicContext
-	extends Pick<
-		GameContext,
-		"roomId" | "actorList" | "timers" | "currentVotes"
-	> {
+	extends Pick<GameContext, "roomId" | "actorList"> {
 	// TODO custom computed field
 	// TODO redacted stuff
 }
@@ -62,7 +59,7 @@ export const serializeGameSnapshot = (
 		context: {
 			...(snap.matches("done")
 				? context
-				: pick(context, ["roomId", "actorList", "currentVotes", "timers"])),
+				: pick(context, ["roomId", "actorList"])),
 		} satisfies GamePublicContext,
 	};
 };

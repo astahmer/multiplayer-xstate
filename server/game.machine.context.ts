@@ -12,25 +12,9 @@ export interface Player {
 	isConnected: boolean;
 }
 
-interface VotePause {
-	type: "pause";
-	fromPlayerId: string;
-}
-interface VoteResume {
-	type: "resume";
-	fromPlayerId: string;
-}
-
-export type Vote = VotePause | VoteResume;
-
 export interface GameContext {
 	roomId: string;
 	actorList: Array<ActorRefFrom<typeof playerMachine>>;
-	currentVotes: Vote[];
-	timers: {
-		starting: number | null;
-		preparing: number | null;
-	};
 }
 
 export const getInitialContext = ({
@@ -39,11 +23,6 @@ export const getInitialContext = ({
 	return {
 		roomId: input.roomId,
 		actorList: [],
-		currentVotes: [],
-		timers: {
-			starting: null,
-			preparing: null,
-		},
 	};
 };
 
