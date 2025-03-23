@@ -83,7 +83,8 @@ export const gameMachine = setup({
 				context.actorList.length >= 1 &&
 				context.actorList.every((ref) => {
 					const player = ref.getSnapshot().context;
-					return player.isConnected && player.state === "ready";
+					// Ignore players that are not connected
+					return player.isConnected ? player.state === "ready" : true;
 				})
 			);
 		},
@@ -98,7 +99,12 @@ export const gameMachine = setup({
 		idle: {
 			always: { target: "playing", guard: "isEveryoneReady" },
 		},
-		playing: {},
+		playing: {
+			always: {
+				target: "idle",
+				guard: not("isEveryoneReady"),
+			},
+		},
 		done: {},
 	},
 	on: {

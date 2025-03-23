@@ -49,7 +49,14 @@ const GameStatus = () => {
 		>
 			<GameClient.Matches value="idle">
 				Waiting for{" "}
-				{`${actor.context.actorList.filter((actor) => actor.getSnapshot().context.state !== "ready").length}/${actor.context.actorList.length}`}{" "}
+				{`${
+					actor.context.actorList.filter((actor) => {
+						const playerContext = actor.getSnapshot().context;
+						return playerContext.isConnected
+							? playerContext.state !== "ready"
+							: true;
+					}).length
+				}/${actor.context.actorList.filter((actor) => actor.getSnapshot().context.isConnected).length}`}{" "}
 				players
 			</GameClient.Matches>
 			<GameClient.Matches value="playing">Playing</GameClient.Matches>
