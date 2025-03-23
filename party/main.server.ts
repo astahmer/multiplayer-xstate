@@ -7,8 +7,8 @@ import { Hono } from "hono";
 export { Machine };
 export { Counter };
 
-const app = new Hono<{ Bindings: Env }>().basePath("/api");
-app.get("/counter/*", async (ctx) => {
+const app = new Hono<{ Bindings: Env }>();
+app.get(`${Counter.basePath}/*`, async (ctx) => {
 	const name = ctx.req.query("name");
 	if (!name) {
 		return ctx.text(

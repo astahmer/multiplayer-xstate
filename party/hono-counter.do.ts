@@ -1,13 +1,16 @@
 import { Hono } from "hono";
 
 export class Counter {
-	value: number = 0;
+	static basePath = "/api/counter";
+
 	state: DurableObjectState;
-	app: Hono = new Hono().basePath("/api/counter");
+	app = new Hono().basePath(Counter.basePath);
+	value = 0;
+	initialPromise: Promise<void>;
 
 	constructor(state: DurableObjectState) {
 		this.state = state;
-		this.state.blockConcurrencyWhile(async () => {
+		this.initialPromise = this.state.blockConcurrencyWhile(async () => {
 			const stored = await this.state.storage?.get<number>("value");
 			this.value = stored || 0;
 		});
@@ -30,6 +33,8 @@ export class Counter {
 	}
 
 	async fetch(request: Request) {
+		// ensures the in memory state is always up to date
+		await this.initialPromise;
 		return this.app.fetch(request);
 	}
 }
