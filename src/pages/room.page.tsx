@@ -17,7 +17,7 @@ export const RoomPage = (props: { roomId: string }) => {
 	const onJoin = (username: string) => {
 		actor.send({
 			type: "Connect",
-			player: { id: actor._userId, name: username },
+			player: { name: username },
 		});
 	};
 

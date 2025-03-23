@@ -22,14 +22,14 @@ import { decode } from "../server/lib/encode-decode";
 
 enableMapSet();
 
-export const createArctorPartyHooks = <TLogic extends AnyStateMachine>(
+export const createActorPartyHooks = <TLogic extends AnyStateMachine>(
 	partySocket: PartySocket,
 	options?: {
 		reviver?: (snapshot: StateFrom<TLogic>) => StateFrom<TLogic>;
 	},
 ) => {
 	interface UseActorProps {
-		onConnect?: (actor: ActorParty<TLogic, PartySocket>) => void;
+		onConnect?: (actor: ActorParty<TLogic>) => void;
 		initialContext?: ContextFrom<TLogic>;
 		partySocketOptions?: Partial<PartySocketOptions>;
 	}
@@ -132,24 +132,22 @@ export const createArctorPartyHooks = <TLogic extends AnyStateMachine>(
 			};
 		}, []);
 
-		return actor;
+		return actor as ActorParty<TLogic, StateFrom<TLogic>>;
 	};
 
-	const ActorContext = createContext<ActorParty<TLogic, PartySocket>>(
-		{} as never,
-	);
+	const ActorContext = createContext<ActorParty<TLogic>>({} as never);
 
 	const ActorProvider = ({ children }: PropsWithChildren) => {
 		const client = useActor();
 		return (
-			<ActorContext.Provider value={client as ActorParty<TLogic, PartySocket>}>
+			<ActorContext.Provider value={client as ActorParty<TLogic>}>
 				{children}
 			</ActorContext.Provider>
 		);
 	};
 
 	const useSelector = <TSelectedValue = never>(
-		selector: (state: ActorParty<TLogic, PartySocket>) => TSelectedValue,
+		selector: (state: ActorParty<TLogic>) => TSelectedValue,
 	) => {
 		const ctx = useContext(ActorContext);
 		if (!ctx) throw new Error("ClientSideMachineProvider not found");

@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import PartySocket from "partysocket";
 import type { GameMachineClientSide } from "../../server/game.machine.serialize";
-import { createArctorPartyHooks } from "../create-actor-party.hooks";
+import { createActorPartyHooks } from "../create-actor-party.hooks";
 import { EnvConfig } from "../env.config";
 
 const id = localStorage.getItem("id") || nanoid();
@@ -15,7 +15,7 @@ const partySocket = new PartySocket({
 });
 partySocket.binaryType = "arraybuffer";
 
-export const GameClient = createArctorPartyHooks<GameMachineClientSide>(
+export const GameClient = createActorPartyHooks<GameMachineClientSide>(
 	partySocket,
 	{
 		reviver: (snapshot) => ({

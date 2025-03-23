@@ -13,12 +13,11 @@ import type { ServerOnlyEventInput } from "../server/lib/server-only-event.type"
 
 export const createActorParty = <
 	TLogic extends AnyStateMachine,
-	TClient extends PartySocket,
 	TState extends StateFrom<TLogic> = StateFrom<TLogic>,
 >(
 	snapshot: TState,
-	partyClient: TClient,
-): ActorParty<TLogic, TClient> => ({
+	partyClient: PartySocket,
+): ActorParty<TLogic> => ({
 	...snapshot,
 	_userId: partyClient.id,
 	snapshot,
@@ -73,7 +72,6 @@ interface SendTo<
 
 export interface ActorParty<
 	TLogic extends AnyStateMachine,
-	TClient extends PartySocket,
 	TState extends StateFrom<TLogic> = StateFrom<TLogic>,
 > {
 	_userId: string;
@@ -93,5 +91,5 @@ export interface ActorParty<
 	value: TState["value"];
 	status: TState["status"];
 	error: TState["error"];
-	partySocket: TClient;
+	partySocket: PartySocket;
 }

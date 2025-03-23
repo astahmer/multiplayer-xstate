@@ -10,7 +10,7 @@ import type { ServerOnlyEventInput } from "./lib/server-only-event.type";
 import { playerMachine } from "./player.machine";
 
 type GameEvent =
-	| { type: "Connect"; player: Pick<Player, "id" | "name"> }
+	| { type: "Connect"; player: Pick<Player, "name"> }
 	| { type: "Disconnect" }
 	| { type: "Ready" }
 	| { type: "CancelReady" };
@@ -32,10 +32,10 @@ export const gameMachine = setup({
 				assertEvent(opt.event, "Connect");
 
 				const newPlayer = opt.spawn(playerMachine, {
-					id: getPlayerId(opt.event.player.id) as never,
+					id: getPlayerId(opt.event._userId) as never,
 					syncSnapshot: true,
 					input: {
-						id: opt.event.player.id,
+						id: opt.event._userId,
 						name: opt.event.player.name,
 					},
 				});
