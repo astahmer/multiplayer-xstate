@@ -25,13 +25,9 @@ import {
 	LuCircleCheck,
 	LuClock,
 } from "react-icons/lu";
-import {
-	type EventFrom,
-	type SnapshotFrom,
-	type StateValueFrom,
-	matchesState,
-} from "xstate";
+import { type SnapshotFrom, type StateValueFrom } from "xstate";
 import type { PaymentActorType } from "../../party/xstate-payment.do";
+import { createActorFacade } from "../create-actor-facade";
 import { SandboxLayout } from "./sandbox.page";
 
 const queryClient = new QueryClient();
@@ -256,17 +252,18 @@ function PaymentWorkflow(props: PropsWithChildren<{ paymentId: string }>) {
 	const logs = snapshot.context.logs ?? [];
 	const currentState = snapshot.value;
 
-	const send = (event: EventFrom<PaymentActorType>) =>
-		fetch(`/api/payment/send?name=${props.paymentId}`, {
-			method: "POST",
-			body: JSON.stringify(event),
-		});
-
-	const matches = (state: StateValueFrom<PaymentActorType>) =>
-		matchesState(state, snapshot?.value ?? {});
+	const actor = createActorFacade<PaymentActorType>(snapshot, {
+		id: props.paymentId,
+		send: (event) =>
+			fetch(`/api/payment/send?name=${props.paymentId}`, {
+				method: "POST",
+				body: JSON.stringify(event),
+			}),
+	});
 
 	const canApprove =
-		matches("Awaiting approval") || matches("Awaiting admin approval");
+		actor.matches("Awaiting approval") ||
+		actor.matches("Awaiting admin approval");
 
 	return (
 		<Box p="10">
@@ -327,23 +324,23 @@ function PaymentWorkflow(props: PropsWithChildren<{ paymentId: string }>) {
 						</Grid>
 						<HStack gap="4" justify="space-between" w="full">
 							<Button
-								onClick={() => send({ type: "approved" })}
+								onClick={() => actor.send({ type: "approved" })}
 								disabled={!canApprove}
 							>
-								{matches("Awaiting admin approval") ? "(Admin) " : ""}
+								{actor.matches("Awaiting admin approval") ? "(Admin) " : ""}
 								Approve Payment{" "}
-								{matches("Awaiting approval")
+								{actor.matches("Awaiting approval")
 									? `(${snapshot.context.secondsLeftToApprove}s left)`
 									: ""}
 							</Button>
 							<Button
-								onClick={() => send({ type: "rejected" })}
+								onClick={() => actor.send({ type: "rejected" })}
 								colorPalette="red"
 								disabled={!canApprove}
 							>
-								{matches("Awaiting admin approval") ? "(Admin) " : ""}
+								{actor.matches("Awaiting admin approval") ? "(Admin) " : ""}
 								Reject Payment{" "}
-								{matches("Awaiting approval")
+								{actor.matches("Awaiting approval")
 									? `(${snapshot.context.secondsLeftToApprove}s left)`
 									: ""}
 							</Button>

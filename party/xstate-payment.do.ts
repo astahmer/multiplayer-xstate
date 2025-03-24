@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import {
 	type ActorRefFrom,
-	type AnyEventObject,
 	type EventFrom,
 	type InputFrom,
 	type SnapshotFrom,
@@ -50,7 +49,7 @@ export class PaymentActor implements DurableObject {
 				amount: parseInt(body.amount),
 			};
 
-			await this.state.storage?.put("input", input);
+			await this.state.storage.put("input", input);
 
 			this.actor = createActor(paymentMachine, { input });
 			this.actor.start();
@@ -76,7 +75,6 @@ export class PaymentActor implements DurableObject {
 
 			this.actor.send(event);
 
-			// return ctx.json({ snapshot: this.actor.getSnapshot() });
 			return ctx.text("OK");
 		});
 	}
@@ -87,15 +85,13 @@ export class PaymentActor implements DurableObject {
 		}
 
 		const snapshot =
-			await this.state.storage?.get<SnapshotFrom<typeof paymentMachine>>(
+			await this.state.storage.get<SnapshotFrom<typeof paymentMachine>>(
 				"snapshot",
 			);
 
 		if (snapshot) {
 			const input =
-				await this.state.storage?.get<InputFrom<typeof paymentMachine>>(
-					"input",
-				);
+				await this.state.storage.get<InputFrom<typeof paymentMachine>>("input");
 			if (!input) {
 				throw new Error("input not found");
 			}

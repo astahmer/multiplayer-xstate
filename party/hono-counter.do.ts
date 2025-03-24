@@ -12,20 +12,20 @@ export class Counter {
 	constructor(state: DurableObjectState, _env: EnvBindings) {
 		this.state = state;
 		this.initialPromise = this.state.blockConcurrencyWhile(async () => {
-			const stored = await this.state.storage?.get<number>("value");
+			const stored = await this.state.storage.get<number>("value");
 			this.value = stored || 0;
 			this.initialPromise = null;
 		});
 
 		this.app.get("/increment", async (c) => {
 			const currentValue = ++this.value;
-			await this.state.storage?.put("value", this.value);
+			await this.state.storage.put("value", this.value);
 			return c.json({ current: currentValue });
 		});
 
 		this.app.get("/decrement", async (c) => {
 			const currentValue = --this.value;
-			await this.state.storage?.put("value", this.value);
+			await this.state.storage.put("value", this.value);
 			return c.json({ current: currentValue });
 		});
 

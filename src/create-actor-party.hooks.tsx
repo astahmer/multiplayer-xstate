@@ -28,13 +28,7 @@ export const createActorPartyHooks = <TLogic extends AnyStateMachine>(
 		reviver?: (snapshot: StateFrom<TLogic>) => StateFrom<TLogic>;
 	},
 ) => {
-	interface UseActorProps {
-		onConnect?: (actor: ActorParty<TLogic>) => void;
-		initialContext?: ContextFrom<TLogic>;
-		partySocketOptions?: Partial<PartySocketOptions>;
-	}
-
-	const useActor = (props?: UseActorProps) => {
+	const useActor = (props?: UseActorPartyProps<TLogic>) => {
 		const [snapshot, setSnapshot] = useState<StateFrom<TLogic>>({
 			context: props?.initialContext ?? {},
 			status: "stopped",
@@ -180,6 +174,32 @@ export const createActorPartyHooks = <TLogic extends AnyStateMachine>(
 		useActor: useActor,
 		useContext: () => useContext(ActorContext),
 		useSelector,
-		_useActorPropsType: {} as UseActorProps,
-	};
+		_useActorPropsType: {} as UseActorPartyProps<TLogic>,
+	} as ActorPartyHooks<TLogic>;
 };
+
+interface UseActorPartyProps<TLogic extends AnyStateMachine> {
+	onConnect?: (actor: ActorParty<TLogic>) => void;
+	initialContext?: ContextFrom<TLogic>;
+	partySocketOptions?: Partial<PartySocketOptions>;
+}
+
+interface ActorPartyHooks<TLogic extends AnyStateMachine> {
+	Context: React.Context<ActorParty<TLogic, StateFrom<TLogic>>>;
+	Provider: ({ children }: PropsWithChildren) => JSX.Element;
+	Matches: (
+		props: PropsWithChildren<{
+			value: StateValueFrom<TLogic> | Array<StateValueFrom<TLogic>>;
+			or?: boolean;
+			inversed?: boolean;
+		}>,
+	) => React.ReactNode;
+	useActor: (
+		props?: UseActorPartyProps<TLogic>,
+	) => ActorParty<TLogic, StateFrom<TLogic>>;
+	useContext: () => ActorParty<TLogic, StateFrom<TLogic>>;
+	useSelector: <TSelectedValue = never>(
+		selector: (state: ActorParty<TLogic>) => TSelectedValue,
+	) => TSelectedValue;
+	_useActorPropsType: UseActorPartyProps<TLogic>;
+}

@@ -50,8 +50,6 @@ export default class MachinePartyServer extends Party.Server {
 	}
 
 	subscribeToSnapshot() {
-		// TODO send update every 10s ?
-
 		this.actor.subscribe({
 			next: (snapshot) => {
 				for (const ws of this.getConnections()) {
